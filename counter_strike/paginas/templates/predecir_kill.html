@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Predicción de Kills</title>
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <style>
+        body {
+            background-color: #2c3e50;
+            color: #ecf0f1;
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .form-container {
+            background-color: #34495e;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+            width: 80%;
+            max-width: 600px;
+        }
+        form {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: center;
+        }
+        .form-group {
+            width: 100%;
+            margin-bottom: 15px;
+        }
+        label {
+            color: #ecf0f1;
+        }
+        input, select {
+            width: 100%;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+        }
+        button {
+            width: 100%;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            background-color: #e74c3c;
+            color: white;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #c0392b;
+        }
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #27ae60;
+            border-radius: 5px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <br>
+    <br>
+    <br>
+    <div class="container">
+        <div class="form-container">
+            <h2 class="text-center mb-4">Predicción de Kills</h2>
+            <form method="post" action="{% url 'predecir_kill' %}">
+                {% csrf_token %}
+                
+                <div class="form-group col-md-6">
+                    <label for="Equipo">Equipo:</label>
+                    <select id="Equipo" name="Equipo" class="form-control" required>
+                        <option value="1">Terrorist</option>
+                        <option value="2">CounterTerrorist</option>
+                    </select>
+                </div>
+                
+                <div class="form-group col-md-6">
+                    <label for="MatchId">ID de la partida:</label>
+                    <input type="number" id="MatchId" name="MatchId" class="form-control" min="4" max="511" required>
+                </div>
+                
+                <div class="form-group col-md-6">
+                    <label for="RoundId">ID de la ronda:</label>
+                    <input type="number" id="RoundId" name="RoundId" class="form-control" min="1" max="36" required>
+                </div>
+                
+                <div class="form-group col-md-6">
+                    <label for="RLethalGrenadesThrown">Granadas acertadas:</label>
+                    <input type="number" id="RLethalGrenadesThrown" name="RLethalGrenadesThrown" class="form-control" min="0" max="4" required>
+                </div>
+                
+                <div class="form-group col-md-6">
+                    <label for="RNonLethalGrenadesThrown">Granadas no acertadas:</label>
+                    <input type="number" id="RNonLethalGrenadesThrown" name="RNonLethalGrenadesThrown" class="form-control" min="0" max="6" required>
+                </div>
+                
+                <div class="form-group col-md-6">
+                    <label for="PrimaryAssaultRifle">Porcentaje de uso del arma Rifle de Asalto Primario:</label>
+                    <input type="number" id="PrimaryAssaultRifle" name="PrimaryAssaultRifle" class="form-control" min="0.00" max="1.00" step="0.01" required>
+                </div>
+                
+                <div class="form-group col-md-6">
+                    <label for="PrimarySniperRifle">Porcentaje de uso del arma Rifle de Flancotirador Primario:</label>
+                    <input type="number" id="PrimarySniperRifle" name="PrimarySniperRifle" class="form-control" min="0.00" max="1.00" step="0.01" required>
+                </div>
+                
+                <div class="form-group col-md-6">
+                    <label for="PrimaryHeavy">Porcentaje de uso del arma Rifle Pesado Primario:</label>
+                    <input type="number" id="PrimaryHeavy" name="PrimaryHeavy" class="form-control" min="0.00" max="1.00" step="0.01" required>
+                </div>
+                
+                <div class="form-group col-md-6">
+                    <label for="PrimarySMG">Porcentaje de uso del arma SMG Primario:</label>
+                    <input type="number" id="PrimarySMG" name="PrimarySMG" class="form-control" min="0.00" max="1.00" step="0.01" required>
+                </div>
+                
+                <div class="form-group col-md-6">
+                    <label for="PrimaryPistol">Porcentaje de uso del arma Pistola Primario:</label>
+                    <input type="number" id="PrimaryPistol" name="PrimaryPistol" class="form-control" min="0.00" max="1.00" step="0.01" required>
+                </div>
+                
+                <div class="form-group col-md-6">
+                    <label for="RoundKills">Kills por rondas:</label>
+                    <input type="number" id="RoundKills" name="RoundKills" class="form-control" min="0" max="5" required>
+                </div>
+                
+                <div class="form-group col-md-6">
+                    <label for="RoundAssists">Asistencias por rondas:</label>
+                    <input type="number" id="RoundAssists" name="RoundAssists" class="form-control" min="0" max="4" required>
+                </div>
+                
+                <div class="form-group col-md-6">
+                    <label for="RoundHeadshots">Headshots por ronda:</label>
+                    <input type="number" id="RoundHeadshots" name="RoundHeadshots" class="form-control" min="0" max="5" required>
+                </div>
+                
+                <div class="form-group col-md-6">
+                    <label for="RoundFlankKills">Asesinatos por flancos por ronda:</label>
+                    <input type="number" id="RoundFlankKills" name="RoundFlankKills" class="form-control" min="0" max="5" required>
+                </div>
+                
+                <div class="form-group col-md-6">
+                    <label for="RoundStartingEquipmentValue">Valor del equipamiento inicial por ronda:</label>
+                    <input type="number" id="RoundStartingEquipmentValue" name="RoundStartingEquipmentValue" class="form-control" min="0.0" max="8850.0" step="0.1" required>
+                </div>
+                
+                <div class="form-group col-md-6">
+                    <label for="TeamStartingEquipmentValue">Valor por equipo inicial:</label>
+                    <input type="number" id="TeamStartingEquipmentValue" name="TeamStartingEquipmentValue" class="form-control" min="0.0" max="36150.0" step="0.1" required>
+                </div>
+                
+                <button type="submit" class="btn btn-danger mt-4">Predecir <i class="fas fa-bullseye ml-2"></i></button>
+            </form>
+            {% if prediction %}
+            <div class="result mt-4">
+                <strong>Predicción:</strong> {{ prediction }}
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Bootstrap JS and dependencies -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.2/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>
