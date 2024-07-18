@@ -1,10 +1,36 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Página de inicio</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Página de Inicio</title>
+    <style>
+        body {
+            background-color: #2c3e50;
+            color: #ecf0f1;
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .container {
+            text-align: center;
+        }
+        a {
+            color: #e74c3c;
+            text-decoration: none;
+            font-size: 1.5em;
+        }
+        a:hover {
+            color: #c0392b;
+        }
+    </style>
 </head>
 <body>
-    <h1>Bienvenido a mi página de inicio</h1>
-    <p>Esta es una página de inicio simple.</p>
+    <div class="container">
+        <h1>Bienvenido a la Predicción de Kills</h1>
+        <a href="{% url 'predecir_kill' %}">Ir a la Predicción</a>
+    </div>
 </body>
 </html>
