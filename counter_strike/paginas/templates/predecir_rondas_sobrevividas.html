@@ -1,0 +1,198 @@
+<!-- predict.html -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        function showPredictionResults(data) {
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.innerHTML = `
+                <div class="alert alert-primary" role="alert">
+                    <strong>Predicción de cuántas rondas sobrevivirá:</strong> ${data.predicted_kills}
+                </div>
+                <div class="alert alert-success" role="alert">
+                    <strong>Promedio de rondas sobrevividas por partida:</strong> ${data.promedio_rondas_sobrevividas}
+                </div>
+                <h3>Promedio de rondas sobrevividas por partida en el mapa:</h3>
+                <canvas id="mapChart"></canvas>
+            `;
+
+            // Crear el gráfico con Chart.js
+            const ctx = document.getElementById('mapChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: Object.keys(data.promedios_por_mapa),
+                    datasets: [{
+                        label: 'Porcentaje de sobrevivir por ronda',
+                        data: Object.values(data.promedios_por_mapa).map(item => parseFloat(item)),
+                        backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                        borderColor: 'rgba(75, 192, 192, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return value + "%";
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function submitForm(event) {
+            event.preventDefault();
+            const formData = new FormData(event.target);
+            fetch(event.target.action, {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-CSRFToken': getCookie('csrftoken')
+                }
+            })
+            .then(response => response.json())
+            .then(data => showPredictionResults(data));
+        }
+
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+    </script>
+</head>
+<body>
+    <header>
+        <nav class="navbar navbar-expand-lg navbar-dark bg-dark w-100">
+            <div class="container">
+                <a class="navbar-brand" href="{% url 'index' %}">Inicio</a>
+                <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <ul class="navbar-nav">
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'predecir_kill' %}">Predecir Kills</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'predecir_rondas_sobrevividas' %}">Predecir Rondas Sobrevividas</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+    </header>
+    <div class="container mt-5">
+        <h1 class="text-center">Predicción de Rondas Sobrevividas</h1>
+        <form id="predictionForm" onsubmit="submitForm(event)" class="mt-4">
+            {% csrf_token %}
+            <div class="form-row">
+                <label for="internal_team_id">Equipo:</label>
+                <select id="internal_team_id" name="internal_team_id" class="form-control" required>
+                    <option value="1">Terrorist</option>
+                    <option value="2">CounterTerrorist</option>
+                </select>
+            </div>
+            <div class="form-row">
+                <div class="form-group col-md-6">
+                    <label for="match_id">Match ID</label>
+                    <input type="number" class="form-control" id="match_id" name="match_id" placeholder="Match ID" required>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group col-md-6">
+                    <label for="round_id">Round ID</label>
+                    <input type="number" class="form-control" id="round_id" name="round_id" placeholder="Round ID" required>
+                </div>
+                <div class="form-group col-md-6">
+                    <label for="rlethal_grenades_thrown">Lethal Grenades Thrown</label>
+                    <input type="number" class="form-control" id="rlethal_grenades_thrown" name="rlethal_grenades_thrown" placeholder="Lethal Grenades Thrown" required>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group col-md-6">
+                    <label for="rnonlethal_grenades_thrown">Non-Lethal Grenades Thrown</label>
+                    <input type="number" class="form-control" id="rnonlethal_grenades_thrown" name="rnonlethal_grenades_thrown" placeholder="Non-Lethal Grenades Thrown" required>
+                </div>
+                <div class="form-group col-md-6">
+                    <label for="primary_assault_rifle">Primary Assault Rifle</label>
+                    <input type="number" class="form-control" id="primary_assault_rifle" name="primary_assault_rifle" placeholder="Primary Assault Rifle" required>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group col-md-6">
+                    <label for="primary_sniper_rifle">Primary Sniper Rifle</label>
+                    <input type="number" class="form-control" id="primary_sniper_rifle" name="primary_sniper_rifle" placeholder="Primary Sniper Rifle" required>
+                </div>
+                <div class="form-group col-md-6">
+                    <label for="primary_heavy">Primary Heavy</label>
+                    <input type="number" class="form-control" id="primary_heavy" name="primary_heavy" placeholder="Primary Heavy" required>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group col-md-6">
+                    <label for="primary_smg">Primary SMG</label>
+                    <input type="number" class="form-control" id="primary_smg" name="primary_smg" placeholder="Primary SMG" required>
+                </div>
+                <div class="form-group col-md-6">
+                    <label for="primary_pistol">Primary Pistol</label>
+                    <input type="number" class="form-control" id="primary_pistol" name="primary_pistol" placeholder="Primary Pistol" required>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group col-md-6">
+                    <label for="round_kills">Round Kills</label>
+                    <input type="number" class="form-control" id="round_kills" name="round_kills" placeholder="Round Kills" required>
+                </div>
+                <div class="form-group col-md-6">
+                    <label for="round_assists">Round Assists</label>
+                    <input type="number" class="form-control" id="round_assists" name="round_assists" placeholder="Round Assists" required>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group col-md-6">
+                    <label for="round_headshots">Round Headshots</label>
+                    <input type="number" class="form-control" id="round_headshots" name="round_headshots" placeholder="Round Headshots" required>
+                </div>
+                <div class="form-group col-md-6">
+                    <label for="round_flank_kills">Round Flank Kills</label>
+                    <input type="number" class="form-control" id="round_flank_kills" name="round_flank_kills" placeholder="Round Flank Kills" required>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group col-md-6">
+                    <label for="round_starting_equipment_value">Round Starting Equipment Value</label>
+                    <input type="number" class="form-control" id="round_starting_equipment_value" name="round_starting_equipment_value" placeholder="Round Starting Equipment Value" required>
+                </div>
+                <div class="form-group col-md-6">
+                    <label for="team_starting_equipment_value">Team Starting Equipment Value</label>
+                    <input type="number" class="form-control" id="team_starting_equipment_value" name="team_starting_equipment_value" placeholder="Team Starting Equipment Value" required>
+                </div>
+            </div>
+            <button type="submit" class="btn btn-primary btn-block">Predecir</button>
+        </form>
+        <div id="results" class="mt-4"></div>
+    </div>
+</body>
+</html>
