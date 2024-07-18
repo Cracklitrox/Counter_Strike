@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Resultado de Predicción de Partida de Jugadores</title>
+</head>
+<body>
+    <h2>Resultado de Predicción de Partida de Jugadores</h2>
+    <ul>
+        {% for key, value in data.items %}
+            <li>Jugador {{ key.split('_')[1] }}: {{ value }}</li>
+        {% endfor %}
+    </ul>
+</body>
+</html>
