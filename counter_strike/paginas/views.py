@@ -15,7 +15,6 @@ def index(request):
 model = joblib.load('paginas/modelo_entrenamiento/modelo_entrenado.pkl')
 model = joblib.load('paginas/modelo_entrenamiento/predecir_kills_partida.pkl')
 
-
 # Funcion para predecir las kills de la partida del jugador
 def predecir_kill(request):
     if request.method == 'POST':
